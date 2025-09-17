@@ -9,10 +9,9 @@ env:
 
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: "roka-attila-dev"
+  OPENSHIFT_NAMESPACE: "benedek-koos-dev"
 
   APP_PORT: "8080"
-
 on:
   # https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows
   push: 
@@ -21,7 +20,7 @@ on:
 jobs:
   build-and-push: 
     name: Build and push to github container registry
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     environment: development
 
     outputs:
@@ -33,6 +32,16 @@ jobs:
       id: checkout
       uses: actions/checkout@v2
 
+	# Debug if necessary
+    - name: Debug Host Environment
+      run: |
+        cat /etc/os-release  # Verify the OS version
+        docker --version     # Check Docker version
+        # podman --version     # Check Podman version
+        # podman info          # Inspect Podman setup
+        curl --unix-socket /var/run/docker.sock http://localhost/version | jq  # Check Docker API version
+
+
    # https://github.com/redhat-actions/s2i-build#readme
     - name: S2I Build 
       id: build_image
@@ -42,6 +51,14 @@ jobs:
         builder_image: 'registry.access.redhat.com/ubi8/openjdk-11'
         image: ${{ env.APP_NAME }}
         tags: ${{ env.IMAGE_TAGS }}
+
+    - name: Install OpenShift CLI
+      run: |
+        curl -LO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz"
+        tar -xvf openshift-client-linux.tar.gz
+        sudo mv oc /usr/local/bin/
+        sudo chmod +x /usr/local/bin/oc
+        oc version --client # Verify installation
 
     # https://github.com/redhat-actions/push-to-registry#readme
     - name: Push to Registry 
