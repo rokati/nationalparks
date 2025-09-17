@@ -7,7 +7,7 @@ env:
   IMAGE_TAGS: latest ${{ github.sha }}
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: "benedek-koos-dev"
+  OPENSHIFT_NAMESPACE: "roka-attila-dev"
   APP_PORT: "8080"
 on:
   push:
